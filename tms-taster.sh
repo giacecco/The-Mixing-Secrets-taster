@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: ./script.sh [source_directory]
+# Usage: ./import_to_music.sh [source_directory]
 SOURCE_DIR="${1:-/Volumes/home/music/multitracks/The Mixing Secrets}"
 DESTINATION_FOLDER="/Users/giacecco/Music/Music/Media.localized/Automatically Add to Music.localized"
 TEMP_DIR="$(mktemp -d "/tmp/mixing_secrets_XXXX")"
@@ -32,8 +32,13 @@ for artist_dir in "$SOURCE_DIR"/*/; do
                 "$temp_output"
 
             if [[ -f "$temp_output" ]]; then
-                mv "$temp_output" "$final_output"
-                echo "✅ Saved: $final_output"
+                if [[ ! -f "$final_output" ]]; then
+                    mv "$temp_output" "$final_output"
+                    echo "✅ Saved: $final_output"
+                else
+                    echo "⚠️ Skipped (already exists): $final_output"
+                    rm "$temp_output"
+                fi
             else
                 echo "⚠️ Failed to process: $preview_file"
             fi
@@ -43,7 +48,7 @@ for artist_dir in "$SOURCE_DIR"/*/; do
     done
 done
 
-# Cleanup temp folder if empty
+# Cleanup temp directory (will be empty or gone by now)
 rmdir "$TEMP_DIR" 2>/dev/null
 
 echo "🎉 All done!"
